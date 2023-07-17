@@ -21,7 +21,7 @@ def send_header(self, keyword, value):
 ```bash
 pip install -r requirements.txt
 ```
-### 3. 运行
+### 3. 运行（需管理员权限）
 ```bash
 python -dm yourdomain -i yourip        
 ```
@@ -34,9 +34,9 @@ python -dm yourdomain -i yourip
 ```bash
 chmod u+x dnslog
 ```
-### 3. 运行
+### 3. 运行（需管理员权限）
 ```bash
-dnslog -dm yourdomain -i yourip        
+sudo ./dnslog -dm yourdomain -i yourip        
 ```
 ### 4. 访问 域名:端口（默认8000）
 
