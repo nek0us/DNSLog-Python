@@ -67,7 +67,7 @@ class EchoServerProtocol():
         # 获取分类
             recv_domain = str(rec_query.question[0].name)
             try:
-                domain_type = rec_query.question[0].name.labels[-4]
+                domain_type = rec_query.question[0].name.labels[-4].decode()
                 # domain_type = recv_domain.replace(f".{domain}.","").split(".")[1]
                 # 将分类信息记录
                 now = datetime.now()
