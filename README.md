@@ -4,8 +4,8 @@ a Python DNSLog
 # 配置参数
 ### -h 查看配置参数
 ### -\-domain 你的域名 <必填>
-### -\-host 你的公网ip
-### -\-port Web UI 端口
+### -\-host 你的ip (默认 0.0.0.0)
+### -\-port Web UI 端口 (默认 8000)
 
 # 使用方式
 ## 通过 Python 使用
