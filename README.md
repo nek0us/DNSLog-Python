@@ -1,11 +1,13 @@
 # DNSLog-Python
 a Python DNSLog 
 
+
 # 配置参数
 ### -h 查看配置参数
 ### -\-domain 你的域名 <必填>
 ### -\-host 你的ip (默认 0.0.0.0)
 ### -\-port Web UI 端口 (默认 8000)
+
 
 # 使用方式
 ## 通过 Python 使用
@@ -37,6 +39,10 @@ chmod u+x dnslog
 dnslog -dm yourdomain -i yourip        
 ```
 ### 4. 访问 域名:端口（默认8000）
+
+## 关闭方式
+### 狂按 Ctrl + C 
+
 
 # 域名配置方式
 ## 单域名配置方式
