@@ -5,7 +5,7 @@ a Python DNSLog
 # 配置参数
 ### -h 查看配置参数
 ### -\-domain 你的域名 <必填>
-### -\-host 你的ip (默认 0.0.0.0)
+### -\-host 你的NS IP <必填>
 ### -\-port Web UI 端口 (默认 8000)
 
 
@@ -53,3 +53,5 @@ sudo ./dnslog -dm yourdomain -i yourip
 [![pCoINw9.png](https://s1.ax1x.com/2023/07/17/pCoINw9.png)](https://imgse.com/i/pCoINw9)
 ## 双域名配置方式
 ### 见搜索引擎
+
+# 更多功能待续...

