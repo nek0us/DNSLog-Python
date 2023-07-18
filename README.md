@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ```
 ### 3. 运行（需管理员权限）
 ```bash
-python -dm yourdomain -i yourip        
+python dnslog.py -dm yourdomain -i yourip        
 ```
 ### 4. 访问 域名:端口（默认8000）
 
