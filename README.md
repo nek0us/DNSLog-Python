@@ -48,7 +48,7 @@ sudo ./dnslog -dm yourdomain -i yourip
 ## 单域名配置方式
 ### 1.添加一条A记录到服务器公网IP，两条NS记录到该A记录
 [![pCoIteJ.png](https://s1.ax1x.com/2023/07/17/pCoIteJ.png)](https://imgse.com/i/pCoIteJ)
-### 2.域名管理中，修改 DNS Host 为A记录值
+### 2.域名管理中，修改 DNS Host 为A记录值, 修改 DNS解析 为两条NS记录值
 [![pCoIJL4.png](https://s1.ax1x.com/2023/07/17/pCoIJL4.png)](https://imgse.com/i/pCoIJL4)
 [![pCoINw9.png](https://s1.ax1x.com/2023/07/17/pCoINw9.png)](https://imgse.com/i/pCoINw9)
 ## 双域名配置方式
